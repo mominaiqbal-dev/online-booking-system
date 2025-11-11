@@ -1,0 +1,159 @@
+import React from 'react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import Header from '@/Components/Header';
+import Footer from '@/Components/Footer';
+
+export default function Contact({ auth }) {
+    const { flash } = usePage().props;
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('contact.send'), {
+            onSuccess: () => {
+                reset('message');
+            }
+        });
+    };
+
+    return (
+        <>
+            <Head title="Contact Us - Smart Booking" />
+            <Header auth={auth} />
+
+            {/* Hero section with overlay text */}
+            <section className="contact-hero-image">
+                <img src="https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Contact Hero" />
+                <div className="hero-overlay">
+                    <div className="container">
+                        <h1>Get in Touch</h1>
+                        <p>We'd love to hear from you! Whether you have questions, feedback, or partnership requests — EasyGest is here for you.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="contact-section">
+                <div className="container contact-grid">
+                    <div className="contact-main">
+                        <div className="contact-form-card">
+                            <h2>Contact Form</h2>
+                            {flash && flash.success && (
+                                <div className="alert success">{flash.success}</div>
+                            )}
+
+                            <form onSubmit={submit} className="contact-form">
+                                <div className="form-group">
+                                    <input 
+                                        placeholder="Full Name" 
+                                        value={data.name} 
+                                        onChange={e => setData('name', e.target.value)} 
+                                        required 
+                                    />
+                                    {errors.name && <div className="error">{errors.name}</div>}
+                                </div>
+
+                                <div className="form-group">
+                                    <input 
+                                        type="email" 
+                                        placeholder="Email Address"
+                                        value={data.email} 
+                                        onChange={e => setData('email', e.target.value)} 
+                                        required 
+                                    />
+                                    {errors.email && <div className="error">{errors.email}</div>}
+                                </div>
+
+                                <div className="form-group">
+                                    <input 
+                                        placeholder="Subject"
+                                        value={data.subject} 
+                                        onChange={e => setData('subject', e.target.value)} 
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <textarea 
+                                        placeholder="Write your message here..."
+                                        value={data.message} 
+                                        onChange={e => setData('message', e.target.value)} 
+                                        required 
+                                        rows={6} 
+                                    />
+                                    {errors.message && <div className="error">{errors.message}</div>}
+                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    className="send-message-btn" 
+                                    disabled={processing}
+                                >
+                                    {processing ? 'Sending...' : 'Send Message'}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div className="contact-info-card">
+                        <h3>Reach Us Directly</h3>
+                        <p>Whether you're looking for information, booking or partnership opportunities - we're here to assist you.</p>
+
+                        <div className="contact-details">
+                            <div className="contact-item">
+                                <span className="icon">📞</span>
+                                <span>+92 300 1234567</span>
+                            </div>
+                            <div className="contact-item">
+                                <span className="icon">✉️</span>
+                                <span>support@easygest.com</span>
+                            </div>
+                            <div className="contact-item">
+                                <span className="icon">📍</span>
+                                <span>Peshawar Digital Point, New Arbab Rd, Pakistan</span>
+                            </div>
+                        </div>
+
+                        <div className="social-links">
+                            <a href="#" className="social-icon">
+                                <img src="/icons/instagram.svg" alt="Instagram" />
+                            </a>
+                            <a href="#" className="social-icon">
+                                <img src="/icons/facebook.svg" alt="Facebook" />
+                            </a>
+                            <a href="#" className="social-icon">
+                                <img src="/icons/twitter.svg" alt="Twitter" />
+                            </a>
+                            <a href="#" className="social-icon">
+                                <img src="/icons/linkedin.svg" alt="LinkedIn" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div className="map-box">
+                <div className="map-wrapper">
+                    <h3>Find Us On Map</h3>
+                </div>
+                <div className="map-container">
+                    <iframe
+                        title="map"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3313.123!2d71.5245!3d34.015!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzTCsDAwJzAwLjAiTiA3McKwMzEnMjUuMCJF!5e0!3m2!1sen!2s!4v1620000000000"
+                        width="100%"
+                        height="280"
+                        style={{ border: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                    />
+                </div>
+            </div>
+
+            <Footer />
+        </>
+    );
+}
