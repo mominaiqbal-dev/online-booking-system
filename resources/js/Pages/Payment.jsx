@@ -3,7 +3,39 @@ import { Head, router } from '@inertiajs/react';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 
-export default function Payment({ auth }) {
+export default function Payment({ auth, booking }) {
+    // Check if booking exists, if not show error
+    if (!booking) {
+        return (
+            <>
+                <Head title="Payment - Error" />
+                <Header auth={auth} />
+                <section className="payment-page">
+                    <div className="container">
+                        <div className="payment-wrapper">
+                            <div className="payment-header">
+                                <h1>Payment Error</h1>
+                                <p>No booking found. Please create a booking first before proceeding to payment.</p>
+                            </div>
+                            <div className="payment-actions">
+                                <button
+                                    onClick={() => router.visit('/booking-form')}
+                                    className="pay-now-btn"
+                                >
+                                    Create Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <Footer />
+            </>
+        );
+    }
+
+    // Debug: Log booking data
+    console.log('Payment page booking data:', booking);
+
     const [paymentData, setPaymentData] = useState({
         payment_method: 'card',
         card_holder_name: '',
@@ -13,7 +45,8 @@ export default function Payment({ auth }) {
         mobile_number: '',
         otp: '',
         terms_accepted: false,
-        amount: 3500 // Default amount
+        amount: booking.room_price ? parseFloat(booking.room_price) : 3500,
+        booking_id: booking.id
     });
 
     const [otpSent, setOtpSent] = useState(false);
@@ -24,11 +57,21 @@ export default function Payment({ auth }) {
         setLoading(true);
 
         router.post('/process-payment', paymentData, {
-            onSuccess: () => {
+            onSuccess: (page) => {
                 setLoading(false);
+                console.log('Payment success - redirecting to success page');
+                // Inertia will handle the redirect automatically
             },
             onError: (errors) => {
                 setLoading(false);
+                console.error('Payment errors:', errors);
+                if (errors.response && errors.response.data && errors.response.data.errors) {
+                    alert('Validation errors: ' + JSON.stringify(errors.response.data.errors));
+                } else if (errors.response && errors.response.data && errors.response.data.error) {
+                    alert('Error: ' + errors.response.data.error);
+                } else {
+                    alert('Payment failed. Please try again.');
+                }
             }
         });
     };

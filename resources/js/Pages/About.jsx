@@ -33,7 +33,7 @@ export default function About({ auth }) {
                             </p>
                         </div>
                         <div className="story-image-box">
-                            <img src="https://images.unsplash.com/photo-1582139329536-e7284fece509?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=350&q=80" alt="Pakistan Landscape" />
+                            <img src="https://quaysidehotel.co.uk/wp-content/uploads/2022/09/Reasons-to-a-room-direct-with-hotel-over-booking-via-third-party-travel-agency.jpg" alt="Pakistan Landscape" />
                         </div>
                     </div>
                 </div>

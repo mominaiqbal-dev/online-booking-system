@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
@@ -11,38 +11,68 @@ export default function BookingFormPage({ auth }) {
         checkInDate: '',
         checkOutDate: '',
         numberOfGuests: 1,
-        roomType: 'Single Room',
+        roomType: '',
         specialRequests: '',
-        saveInfo: false
+        saveInfo: false,
+        hostelId: '',
+        hostelName: '',
+        hostelLocation: '',
+        roomId: '',
+        roomPrice: '',
     });
 
     const [customGuests, setCustomGuests] = useState('');
+    const [hostels, setHostels] = useState([]);
+    const [rooms, setRooms] = useState([]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        
-        const finalFormData = {
-            ...formData,
-            numberOfGuests: customGuests ? parseInt(customGuests) : formData.numberOfGuests
-        };
-        
-        router.post('/bookings', finalFormData, {
-            onSuccess: () => {
-                alert('Booking confirmed successfully!');
-                window.history.back();
-            },
-            onError: (errors) => {
-                alert('Error submitting booking. Please try again.');
-            }
-        });
-    };
+    // Fetch all hostels on mount
+    useEffect(() => {
+        fetch('/api/hostels')
+            .then(res => res.json())
+            .then(data => setHostels(data))
+            .catch(err => console.error(err));
+    }, []);
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+    // Fetch available rooms when hostel changes
+    const handleHostelChange = (e) => {
+        const hostelId = e.target.value;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            hostelId: hostelId,
+            roomId: '',
+            hostelName: hostels.find(h => h.id == hostelId)?.name || '',
+            hostelLocation: hostels.find(h => h.id == hostelId)?.location || '',
         }));
+
+        if (hostelId) {
+            fetch(`/api/rooms/available/${hostelId}`)
+                .then(res => res.json())
+                .then(data => setRooms(data))
+                .catch(err => console.error(err));
+        } else {
+            setRooms([]);
+        }
+    };
+
+    const handleRoomChange = (e) => {
+        const roomId = e.target.value;
+        const selectedRoom = rooms.find(r => r.id == roomId);
+
+        if (selectedRoom) {
+            setFormData(prev => ({
+                ...prev,
+                roomId: roomId,
+                roomType: selectedRoom.room_type,
+                roomPrice: selectedRoom.price,
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                roomId: '',
+                roomType: '',
+                roomPrice: '',
+            }));
+        }
     };
 
     const handleGuestsChange = (e) => {
@@ -58,13 +88,36 @@ export default function BookingFormPage({ auth }) {
         }
     };
 
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const finalFormData = {
+            ...formData,
+            numberOfGuests: customGuests ? parseInt(customGuests) : formData.numberOfGuests
+        };
+
+        router.post('/bookings', finalFormData, {
+            onSuccess: () => alert('Booking created successfully! Redirecting to payment...'),
+            onError: (errors) => {
+                console.error(errors);
+                alert('Error submitting booking. Please try again.');
+            }
+        });
+    };
+
     return (
         <>
             <Head title="Booking Form - Smart Booking System" />
-            
             <Header auth={auth} />
 
-            {/* Main Form Section */}
             <section className="booking-form-page">
                 <div className="container">
                     <div className="booking-form-wrapper">
@@ -74,11 +127,76 @@ export default function BookingFormPage({ auth }) {
                         </div>
 
                         <form onSubmit={handleSubmit} className="booking-form-page-form">
-                            {/* Two Column Layout */}
+
+                            {/* Hostel Selection */}
                             <div className="form-section-page">
-                                {/* Left Column */}
                                 <div className="form-section-column-page">
-                                    {/* Full Name */}
+                                    <div className="form-group-page">
+                                        <h3>Select Hostel</h3>
+                                        <select
+                                            name="hostelId"
+                                            value={formData.hostelId}
+                                            onChange={handleHostelChange}
+                                            required
+                                            className="form-input-page"
+                                        >
+                                            <option value="">-- Select Hostel --</option>
+                                            {hostels.map(h => (
+                                                <option key={h.id} value={h.id}>{h.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group-page">
+                                        <h3>Hostel Location</h3>
+                                        <input
+                                            type="text"
+                                            name="hostelLocation"
+                                            value={formData.hostelLocation}
+                                            readOnly
+                                            className="form-input-page"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-section-column-page">
+                                    <div className="form-group-page">
+                                        <h3>Select Room</h3>
+                                        <select
+                                            name="roomId"
+                                            value={formData.roomId}
+                                            onChange={handleRoomChange}
+                                            required
+                                            disabled={!rooms.length}
+                                            className="form-input-page"
+                                        >
+                                            <option value="">
+                                                {rooms.length ? '-- Select Room --' : 'No available rooms'}
+                                            </option>
+                                            {rooms.map(r => (
+                                                <option key={r.id} value={r.id}>
+                                                    {r.room_type} - {r.room_no}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group-page">
+                                        <h3>Room Price (PKR)</h3>
+                                        <input
+                                            type="number"
+                                            name="roomPrice"
+                                            value={formData.roomPrice}
+                                            readOnly
+                                            className="form-input-page"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Guest Information */}
+                            <div className="form-section-page">
+                                <div className="form-section-column-page">
                                     <div className="form-group-page">
                                         <h3>Full Name</h3>
                                         <input
@@ -92,7 +210,6 @@ export default function BookingFormPage({ auth }) {
                                         />
                                     </div>
 
-                                    {/* Check-in & Check-out Dates - Side by Side */}
                                     <div className="form-row-page">
                                         <div className="form-group-page">
                                             <h3>Check-in Date</h3>
@@ -118,7 +235,6 @@ export default function BookingFormPage({ auth }) {
                                         </div>
                                     </div>
 
-                                    {/* Email Address */}
                                     <div className="form-group-page">
                                         <h3>Email Address</h3>
                                         <input
@@ -133,9 +249,7 @@ export default function BookingFormPage({ auth }) {
                                     </div>
                                 </div>
 
-                                {/* Right Column */}
                                 <div className="form-section-column-page">
-                                    {/* Phone Number */}
                                     <div className="form-group-page">
                                         <h3>Phone Number</h3>
                                         <input
@@ -149,26 +263,9 @@ export default function BookingFormPage({ auth }) {
                                         />
                                     </div>
 
-                                    {/* Room Type */}
-                                    <div className="form-group-page">
-                                        <h3>Select Room Type</h3>
-                                        <select 
-                                            name="roomType" 
-                                            value={formData.roomType}
-                                            onChange={handleChange}
-                                            required
-                                            className="form-input-page"
-                                        >
-                                            <option value="Single Room">Single Room</option>
-                                            <option value="Double Room">Double Room</option>
-                                            <option value="Sharing Room">Sharing Room</option>
-                                        </select>
-                                    </div>
-
-                                    {/* Number of Guests */}
                                     <div className="form-group-page">
                                         <h3>Number of Guests</h3>
-                                        <select 
+                                        <select
                                             name="numberOfGuests"
                                             value={customGuests ? 'custom' : formData.numberOfGuests}
                                             onChange={handleGuestsChange}
@@ -197,7 +294,7 @@ export default function BookingFormPage({ auth }) {
                                 </div>
                             </div>
 
-                            {/* Special Requests - Full Width */}
+                            {/* Special Requests */}
                             <div className="special-requests-section-page">
                                 <div className="form-group-page">
                                     <h3>Special Requests</h3>
@@ -212,7 +309,7 @@ export default function BookingFormPage({ auth }) {
                                 </div>
                             </div>
 
-                            {/* Save Info Checkbox - Last me */}
+                            {/* Save Info */}
                             <div className="save-info-section-page">
                                 <label className="checkbox-label-page">
                                     <input
@@ -225,23 +322,20 @@ export default function BookingFormPage({ auth }) {
                                 </label>
                             </div>
 
-                            {/* Action Buttons */}
+                            {/* Form Buttons */}
                             <div className="form-actions-page">
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     className="back-btn-page"
                                     onClick={() => window.history.back()}
                                 >
                                     Back
                                 </button>
-                                <button 
-    type="button" 
-    className="confirm-booking-btn-page"
-    onClick={() => router.get('/payment')}
->
-    Confirm Booking
-</button>
+                                <button type="submit" className="confirm-booking-btn-page">
+                                    Confirm Booking
+                                </button>
                             </div>
+
                         </form>
                     </div>
                 </div>

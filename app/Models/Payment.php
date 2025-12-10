@@ -22,4 +22,15 @@ class Payment extends Model
         'status',
         'terms_accepted'
     ];
+
+    protected $casts = [
+        'booking_id' => 'integer',
+        'amount' => 'decimal:2',
+        'terms_accepted' => 'boolean',
+    ];
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
 }

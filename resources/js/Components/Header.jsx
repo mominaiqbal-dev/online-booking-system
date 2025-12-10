@@ -1,282 +1,423 @@
 import React, { useState } from 'react';
-import { Link, useForm, router } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 
-export default function Header({ auth }) {
-    const [showLoginModal, setShowLoginModal] = useState(false);
-    const [showSignupModal, setShowSignupModal] = useState(false);
+export default function Header() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { auth } = usePage().props;
 
-    // LOGIN FORM
-    const {
-        data: loginData,
-        setData: setLoginData,
-        post: loginPost,
-        processing: loginProcessing,
-        errors: loginErrors,
-    } = useForm({
-        email: "",
-        password: "",
-        remember: false,
-    });
-
-    const handleLogin = (e) => {
-        e.preventDefault();
-        loginPost(route('login'), {
-            onSuccess: () => setShowLoginModal(false),
-        });
-    };
-
-    // REGISTER FORM
-    const {
-        data: registerData,
-        setData: setRegisterData,
-        post: registerPost,
-        processing: registerProcessing,
-        errors: registerErrors,
-    } = useForm({
-        name: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-    });
-
-    const handleRegister = (e) => {
-        e.preventDefault();
-        registerPost(route('register'), {
-            onSuccess: () => setShowSignupModal(false),
-        });
-    };
-
-    // ✅ FIXED LOGOUT FUNCTION
     const handleLogout = (e) => {
         e.preventDefault();
-        router.post(route('logout'));
-    };
-
-    const closeModals = () => {
-        setShowLoginModal(false);
-        setShowSignupModal(false);
-    };
-
-    const switchToSignup = (e) => {
-        e.preventDefault();
-        setShowLoginModal(false);
-        setShowSignupModal(true);
-    };
-
-    const switchToLogin = (e) => {
-        e.preventDefault();
-        setShowSignupModal(false);
-        setShowLoginModal(true);
+        router.post('/logout');
     };
 
     return (
-        <>
-            {/* ======== HEADER ======== */}
-            <header className="header">
-                <div className="container">
-                    <div className="logo">
-                        <h1>Smart Booking for Government<br />Hostels & Guest Houses</h1>
-                    </div>
-                    <nav className="navbar">
-                        <ul>
-                            <li><Link href="/">Home</Link></li>
-                           <li><Link href="/hotels">Hotels</Link></li>
-                            <li><Link href="/about">About Us</Link></li>
-                            <li><Link href="/contact">Contact</Link></li>
-                            {auth.user ? (
-                                <>
-                                    <li>
-                                        <Link href={route('dashboard')} className="login-btn">Dashboard</Link>
-                                    </li>
-                                    <li>
-                                        {/* ✅ FIXED LOGOUT BUTTON */}
-                                        <button 
-                                            onClick={handleLogout} 
-                                            className="logout-btn"
-                                            type="button"
-                                        >
-                                            Logout
-                                        </button>
-                                    </li>
-                                </>
-                            ) : (
-                                <>
-                                    <li>
-                                        <button className="login-btn" onClick={() => setShowLoginModal(true)}>Login</button>
-                                    </li>
-                                    <li>
-                                        <button className="signup-btn" onClick={() => setShowSignupModal(true)}>Sign Up</button>
-                                    </li>
-                                </>
-                            )}
-                        </ul>
-                    </nav>
+        <header className="header" style={{ 
+            background: '#ffffff', 
+            padding: '15px 0',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000
+        }}>
+            <div className="container" style={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                padding: '0 20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                {/* Logo */}
+                <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Link href="/" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        textDecoration: 'none',
+                        color: '#000000',
+                        fontSize: '24px',
+                        fontWeight: 'bold'
+                    }}>
+                        <span>Smart Booking System</span>
+                    </Link>
                 </div>
-            </header>
 
-            {/* ======== LOGIN MODAL ======== */}
-            {showLoginModal && (
-                <div className="modal-overlay" onClick={closeModals}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={closeModals}>&times;</button>
-                        <div className="auth-header">
-                            <h2>Login</h2>
-                            <p>Welcome back! Please sign in to your account.</p>
-                        </div>
+                {/* Desktop Navigation */}
+                <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center' }}>
+                    <ul style={{
+                        display: 'flex',
+                        listStyle: 'none',
+                        gap: '30px',
+                        alignItems: 'center',
+                        margin: 0,
+                        padding: 0
+                    }}>
+                        <li>
+                            <Link href="/" style={{ 
+                                textDecoration: 'none', 
+                                color: '#374151',
+                                fontWeight: '500',
+                                fontSize: '16px',
+                                transition: 'color 0.2s'
+                            }} className="hover-text-blue">Home</Link>
+                        </li>
+                        <li>
+                            <Link href="/hotels" style={{ 
+                                textDecoration: 'none', 
+                                color: '#374151',
+                                fontWeight: '500',
+                                fontSize: '16px',
+                                transition: 'color 0.2s'
+                            }} className="hover-text-blue">Hotels</Link>
+                        </li>
+                        <li>
+                            <Link href="/about" style={{ 
+                                textDecoration: 'none', 
+                                color: '#374151',
+                                fontWeight: '500',
+                                fontSize: '16px',
+                                transition: 'color 0.2s'
+                            }} className="hover-text-blue">About Us</Link>
+                        </li>
+                        <li>
+                            <Link href="/contact" style={{ 
+                                textDecoration: 'none', 
+                                color: '#374151',
+                                fontWeight: '500',
+                                fontSize: '16px',
+                                transition: 'color 0.2s'
+                            }} className="hover-text-blue">Contact</Link>
+                        </li>
+                        
+                        {auth?.user ? (
+                            <>
+                                {/* Profile Link - Contact ke baad */}
+                                <li>
+                                    <Link href="/profile" style={{ 
+                                        textDecoration: 'none', 
+                                        color: '#374151',
+                                        fontWeight: '500',
+                                        fontSize: '16px',
+                                        transition: 'color 0.2s'
+                                    }} className="hover-text-blue">Profile</Link>
+                                </li>
+                                
+                                {/* Dashboard Link - Profile ke baad */}
+                                <li>
+                                    <Link href="/dashboard" style={{ 
+                                        textDecoration: 'none', 
+                                        background: '#2563eb',
+                                        color: 'white',
+                                        padding: '10px 20px',
+                                        borderRadius: '6px',
+                                        fontWeight: '500',
+                                        fontSize: '16px',
+                                        transition: 'background 0.2s'
+                                    }} className="hover-bg-blue">Dashboard</Link>
+                                </li>
+                                
+                                {/* Logout Button */}
+                                <li>
+                                    <button 
+                                        onClick={handleLogout}
+                                        style={{ 
+                                            background: '#dc2626',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '10px 20px',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            transition: 'background 0.2s'
+                                        }}
+                                        className="hover-bg-red"
+                                    >
+                                        Logout
+                                    </button>
+                                </li>
+                            </>
+                        ) : (
+                            <>
+                                <li>
+                                    <Link href="/login" style={{ 
+                                        textDecoration: 'none', 
+                                        color: '#374151',
+                                        fontWeight: '500',
+                                        fontSize: '16px',
+                                        transition: 'color 0.2s'
+                                    }} className="hover-text-blue">Login</Link>
+                                </li>
+                                <li>
+                                    <Link href="/register" style={{ 
+                                        textDecoration: 'none', 
+                                        background: '#2563eb',
+                                        color: 'white',
+                                        padding: '10px 20px',
+                                        borderRadius: '6px',
+                                        fontWeight: '500',
+                                        fontSize: '16px',
+                                        transition: 'background 0.2s'
+                                    }} className="hover-bg-blue">Sign Up</Link>
+                                </li>
+                            </>
+                        )}
+                    </ul>
+                </nav>
 
-                        <form onSubmit={handleLogin} className="auth-form">
-                            <div className="form-group">
-                                <label htmlFor="email">Email</label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    value={loginData.email}
-                                    className={loginErrors.email ? 'error' : ''}
-                                    autoComplete="username"
-                                    onChange={(e) => setLoginData("email", e.target.value)}
-                                    required
-                                    placeholder="abc@gmail.com"
-                                />
-                                {loginErrors.email && <div className="error-message">{loginErrors.email}</div>}
-                            </div>
+                {/* Mobile Menu Button */}
+                <button 
+                    className="mobile-menu-button"
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    style={{
+                        display: 'none',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '8px'
+                    }}
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                            d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+                    </svg>
+                </button>
+            </div>
 
-                            <div className="form-group">
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    value={loginData.password}
-                                    className={loginErrors.password ? 'error' : ''}
-                                    autoComplete="current-password"
-                                    onChange={(e) => setLoginData("password", e.target.value)}
-                                    required
-                                    placeholder="**********"
-                                />
-                                {loginErrors.password && <div className="error-message">{loginErrors.password}</div>}
-                            </div>
-
-                            <div className="terms-checkbox">
-                                <input 
-                                    id="remember_me" 
-                                    type="checkbox" 
-                                    name="remember"
-                                    checked={loginData.remember}
-                                    onChange={(e) => setLoginData("remember", e.target.checked)}
-                                />
-                                <label htmlFor="remember_me">Remember me</label>
-                            </div>
-
-                            <div className="forgot-password">
-                                <Link href={route('password.request')}>
-                                    Forgot password?
-                                </Link>
-                            </div>
-
-                            <button type="submit" className="auth-btn" disabled={loginProcessing}>
-                                {loginProcessing ? 'Logging in...' : 'Login'}
-                            </button>
-
-                            <div className="auth-links">
-                                <p>Don't have an account? <a href="#" onClick={switchToSignup}>Sign Up</a></p>
-                            </div>
-                        </form>
-                    </div>
+            {/* Mobile Navigation */}
+            {isMenuOpen && (
+                <div className="mobile-nav" style={{
+                    background: 'white',
+                    borderTop: '1px solid #e5e7eb',
+                    padding: '20px',
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    zIndex: 1001
+                }}>
+                    <ul style={{
+                        listStyle: 'none',
+                        margin: 0,
+                        padding: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '15px'
+                    }}>
+                        <li>
+                            <Link 
+                                href="/" 
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{ 
+                                    textDecoration: 'none', 
+                                    color: '#374151',
+                                    fontWeight: '500',
+                                    fontSize: '16px',
+                                    display: 'block',
+                                    padding: '12px 0',
+                                    textAlign: 'center'
+                                }}
+                            >
+                                Home
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                href="/hotels"
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{ 
+                                    textDecoration: 'none', 
+                                    color: '#374151',
+                                    fontWeight: '500',
+                                    fontSize: '16px',
+                                    display: 'block',
+                                    padding: '12px 0',
+                                    textAlign: 'center'
+                                }}
+                            >
+                                Hotels
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                href="/about"
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{ 
+                                    textDecoration: 'none', 
+                                    color: '#374151',
+                                    fontWeight: '500',
+                                    fontSize: '16px',
+                                    display: 'block',
+                                    padding: '12px 0',
+                                    textAlign: 'center'
+                                }}
+                            >
+                                About Us
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                href="/contact"
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{ 
+                                    textDecoration: 'none', 
+                                    color: '#374151',
+                                    fontWeight: '500',
+                                    fontSize: '16px',
+                                    display: 'block',
+                                    padding: '12px 0',
+                                    textAlign: 'center'
+                                }}
+                            >
+                                Contact
+                            </Link>
+                        </li>
+                        
+                        {auth?.user ? (
+                            <>
+                                {/* Profile Link - Mobile */}
+                                <li>
+                                    <Link 
+                                        href="/profile"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        style={{ 
+                                            textDecoration: 'none', 
+                                            color: '#374151',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            display: 'block',
+                                            padding: '12px 0',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        Profile
+                                    </Link>
+                                </li>
+                                
+                                {/* Dashboard Link - Mobile */}
+                                <li>
+                                    <Link 
+                                        href="/dashboard"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        style={{ 
+                                            textDecoration: 'none', 
+                                            background: '#2563eb',
+                                            color: 'white',
+                                            padding: '12px 16px',
+                                            borderRadius: '6px',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            display: 'block',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        Dashboard
+                                    </Link>
+                                </li>
+                                
+                                {/* Logout Button - Mobile */}
+                                <li>
+                                    <button 
+                                        onClick={(e) => {
+                                            setIsMenuOpen(false);
+                                            handleLogout(e);
+                                        }}
+                                        style={{ 
+                                            background: '#dc2626',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '12px 16px',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            width: '100%'
+                                        }}
+                                    >
+                                        Logout
+                                    </button>
+                                </li>
+                            </>
+                        ) : (
+                            <>
+                                <li>
+                                    <Link 
+                                        href="/login"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        style={{ 
+                                            textDecoration: 'none', 
+                                            color: '#374151',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            display: 'block',
+                                            padding: '12px 0',
+                                            textAlign: 'center',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '6px'
+                                        }}
+                                    >
+                                        Login
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link 
+                                        href="/register"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        style={{ 
+                                            textDecoration: 'none', 
+                                            background: '#2563eb',
+                                            color: 'white',
+                                            padding: '12px 16px',
+                                            borderRadius: '6px',
+                                            fontWeight: '500',
+                                            fontSize: '16px',
+                                            display: 'block',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        Sign Up
+                                    </Link>
+                                </li>
+                            </>
+                        )}
+                    </ul>
                 </div>
             )}
 
-            {/* ======== SIGNUP MODAL ======== */}
-            {showSignupModal && (
-                <div className="modal-overlay" onClick={closeModals}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={closeModals}>&times;</button>
-                        <div className="auth-header">
-                            <h2>Sign Up</h2>
-                            <p>Create your account to get started</p>
-                        </div>
-
-                        <form onSubmit={handleRegister} className="auth-form">
-                            <div className="form-group">
-                                <label htmlFor="name">Full Name</label>
-                                <input
-                                    id="name"
-                                    type="text"
-                                    name="name"
-                                    value={registerData.name}
-                                    className={registerErrors.name ? 'error' : ''}
-                                    autoComplete="name"
-                                    onChange={(e) => setRegisterData("name", e.target.value)}
-                                    required
-                                    placeholder="Full Name"
-                                />
-                                {registerErrors.name && <div className="error-message">{registerErrors.name}</div>}
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="email">Email Address</label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    value={registerData.email}
-                                    className={registerErrors.email ? 'error' : ''}
-                                    autoComplete="username"
-                                    onChange={(e) => setRegisterData("email", e.target.value)}
-                                    required
-                                    placeholder="Email Address"
-                                />
-                                {registerErrors.email && <div className="error-message">{registerErrors.email}</div>}
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    value={registerData.password}
-                                    className={registerErrors.password ? 'error' : ''}
-                                    autoComplete="new-password"
-                                    onChange={(e) => setRegisterData("password", e.target.value)}
-                                    required
-                                    placeholder="Enter Password"
-                                />
-                                {registerErrors.password && <div className="error-message">{registerErrors.password}</div>}
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="password_confirmation">Confirm Password</label>
-                                <input
-                                    id="password_confirmation"
-                                    type="password"
-                                    name="password_confirmation"
-                                    value={registerData.password_confirmation}
-                                    className={registerErrors.password_confirmation ? 'error' : ''}
-                                    autoComplete="new-password"
-                                    onChange={(e) => setRegisterData("password_confirmation", e.target.value)}
-                                    required
-                                    placeholder="Confirm Password"
-                                />
-                                {registerErrors.password_confirmation && <div className="error-message">{registerErrors.password_confirmation}</div>}
-                            </div>
-
-                            <div className="terms-checkbox">
-                                <input id="terms" type="checkbox" name="terms" required />
-                                <label htmlFor="terms">Agree with Terms and conditions</label>
-                            </div>
-
-                            <button type="submit" className="auth-btn" disabled={registerProcessing}>
-                                {registerProcessing ? 'Registering...' : 'Sign Up'}
-                            </button>
-
-                            <div className="auth-links">
-                                <p>Already have an account? <a href="#" onClick={switchToLogin}>Login</a></p>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </>
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    .desktop-nav {
+                        display: none !important;
+                    }
+                    
+                    .mobile-menu-button {
+                        display: block !important;
+                    }
+                    
+                    .logo span {
+                        font-size: 20px !important;
+                    }
+                }
+                
+                @media (min-width: 769px) {
+                    .mobile-nav {
+                        display: none !important;
+                    }
+                }
+                
+                .hover-text-blue:hover {
+                    color: #2563eb !important;
+                }
+                
+                .hover-bg-blue:hover {
+                    background: #1d4ed8 !important;
+                }
+                
+                .hover-bg-red:hover {
+                    background: #b91c1c !important;
+                }
+            `}</style>
+        </header>
     );
 }

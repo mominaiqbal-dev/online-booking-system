@@ -10,6 +10,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id', // ? User ID add karo
         'full_name',
         'phone_number',
         'email',
@@ -22,6 +23,18 @@ class Booking extends Model
         'hostel_location',
         'room_id',
         'room_price',
-        'save_info'
+        'save_info',
+        'status' // ? Status add karo
     ];
+
+    // ? User relationship add karo
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

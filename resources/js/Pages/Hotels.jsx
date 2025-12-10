@@ -3,10 +3,12 @@ import { Head, router } from '@inertiajs/react';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 
-export default function Hotels({ auth }) {
+export default function Hotels({ auth, destination, check_in, check_out }) {
     const [favorites, setFavorites] = useState({});
     const [filters, setFilters] = useState({
-        location: ''
+        location: destination || '',
+        checkIn: check_in || '',
+        checkOut: check_out || ''
     });
     const [allHotels, setAllHotels] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -98,7 +100,7 @@ export default function Hotels({ auth }) {
     });
 
     const clearFilters = () => {
-        setFilters({ location: '' });
+        setFilters({ location: '', checkIn: '', checkOut: '' });
     };
 
     if (loading) {
@@ -165,7 +167,7 @@ export default function Hotels({ auth }) {
                                 className="search-input"
                             />
                             {filters.location && (
-                                <button 
+                                <button
                                     className="clear-search"
                                     onClick={clearFilters}
                                 >
@@ -174,6 +176,74 @@ export default function Hotels({ auth }) {
                             )}
                         </div>
                     </div>
+
+                    {/* Date Filters */}
+                    {(filters.checkIn || filters.checkOut) && (
+                        <div className="date-filters" style={{
+                            marginTop: '15px',
+                            display: 'flex',
+                            gap: '10px',
+                            justifyContent: 'center',
+                            flexWrap: 'wrap'
+                        }}>
+                            {filters.checkIn && (
+                                <div className="filter-tag" style={{
+                                    background: '#e3f2fd',
+                                    color: '#1976d2',
+                                    padding: '5px 12px',
+                                    borderRadius: '20px',
+                                    fontSize: '14px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}>
+                                    Check-in: {new Date(filters.checkIn).toLocaleDateString()}
+                                    <button
+                                        onClick={() => setFilters(prev => ({...prev, checkIn: ''}))}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#1976d2',
+                                            cursor: 'pointer',
+                                            fontSize: '16px',
+                                            padding: '0',
+                                            marginLeft: '5px'
+                                        }}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+                            {filters.checkOut && (
+                                <div className="filter-tag" style={{
+                                    background: '#e3f2fd',
+                                    color: '#1976d2',
+                                    padding: '5px 12px',
+                                    borderRadius: '20px',
+                                    fontSize: '14px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}>
+                                    Check-out: {new Date(filters.checkOut).toLocaleDateString()}
+                                    <button
+                                        onClick={() => setFilters(prev => ({...prev, checkOut: ''}))}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#1976d2',
+                                            cursor: 'pointer',
+                                            fontSize: '16px',
+                                            padding: '0',
+                                            marginLeft: '5px'
+                                        }}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </section>
 

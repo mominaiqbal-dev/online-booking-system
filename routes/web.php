@@ -29,9 +29,9 @@ Route::get('/contact', function () {
 // contact POST endpoint (receives form submissions)
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.send');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+use App\Http\Controllers\DashboardController;
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 // Hotel Rooms Listing Page (Sarah's Port specific)
 Route::get('/booking', function () {
@@ -55,16 +55,18 @@ Route::get('/booking-form', function () {
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
     ]);
-})->name('booking.form');
+})->middleware(['auth', 'verified'])->name('booking.form');
 
 // Booking Submission
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::post('/bookings', [BookingController::class, 'store'])->middleware(['auth', 'verified'])->name('bookings.store');
+
+
 
 // Payment Routes
-Route::get('/payment', [PaymentController::class, 'showPaymentForm'])->name('payment.form');
-Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
-Route::get('/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
-Route::post('/send-otp', [PaymentController::class, 'sendOTP'])->name('payment.send-otp');
+Route::get('/payment', [PaymentController::class, 'showPaymentForm'])->middleware(['auth', 'verified'])->name('payment.form');
+Route::post('/process-payment', [PaymentController::class, 'processPayment'])->middleware(['auth', 'verified'])->name('payment.process');
+Route::get('/payment/success/{booking_id?}', [PaymentController::class, 'paymentSuccess'])->middleware(['auth', 'verified'])->name('payment.success');
+Route::post('/send-otp', [PaymentController::class, 'sendOTP'])->middleware(['auth', 'verified'])->name('payment.send-otp');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

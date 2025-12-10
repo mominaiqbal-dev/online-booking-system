@@ -8,6 +8,11 @@ export default function Welcome({ auth }) {
     const [featuredHostels, setFeaturedHostels] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchData, setSearchData] = useState({
+        destination: '',
+        checkIn: '',
+        checkOut: ''
+    });
 
     // REAL API FETCH for hotels
     const fetchHostels = async () => {
@@ -16,7 +21,7 @@ export default function Welcome({ auth }) {
             setError('');
             console.log('🔄 REAL API FETCH starting...');
             
-            const response = await fetch('http://127.0.0.1:8000/api/hostels');
+            const response = await fetch('/api/hostels');
             console.log('📡 Response status:', response.status);
             
             if (!response.ok) {
@@ -35,7 +40,7 @@ export default function Welcome({ auth }) {
                 id: hostel.id,
                 name: hostel.name,
                 location: hostel.location,
-                image: hostel.image ? `http://127.0.0.1:8000/storage/${hostel.image}` : "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80",
+                image: hostel.image ? `/storage/${hostel.image}` : "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80",
                 availability: hostel.availability || "Available", // ✅ API se availability aayegi
                 rating: parseFloat(hostel.rating) || 4.0,
                 description: hostel.description || "Comfortable accommodation with all basic amenities."
@@ -196,19 +201,49 @@ export default function Welcome({ auth }) {
                             
                             <div className="search-form">
                                 <div className="search-input">
-                                    <input type="text" placeholder="City Or Destination" />
+                                    <input
+                                        type="text"
+                                        placeholder="City Or Destination"
+                                        value={searchData.destination}
+                                        onChange={(e) => setSearchData(prev => ({...prev, destination: e.target.value}))}
+                                    />
                                 </div>
                                 <div className="search-input">
-                                    <input type="text" placeholder="Check In" />
+                                    <input
+                                        type="date"
+                                        placeholder="Check In"
+                                        value={searchData.checkIn}
+                                        onChange={(e) => setSearchData(prev => ({...prev, checkIn: e.target.value}))}
+                                    />
                                 </div>
                                 <div className="search-input">
-                                    <input type="text" placeholder="Check Out" />
+                                    <input
+                                        type="date"
+                                        placeholder="Check Out"
+                                        value={searchData.checkOut}
+                                        onChange={(e) => setSearchData(prev => ({...prev, checkOut: e.target.value}))}
+                                    />
                                 </div>
-                                <button className="search-btn">Search</button>
+                                <button
+                                    className="search-btn"
+                                    onClick={() => {
+                                        if (searchData.destination || searchData.checkIn || searchData.checkOut) {
+                                            router.get('/hotels', {
+                                                destination: searchData.destination,
+                                                check_in: searchData.checkIn,
+                                                check_out: searchData.checkOut
+                                            });
+                                        } else {
+                                            router.get('/hotels');
+                                        }
+                                    }}
+                                >
+                                    Search
+                                </button>
                             </div>
                         </div>
                         <div className="hero-image">
-                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&h=400&q=80" alt="Luxury Hotel" />
+                            <img src="https://st2.depositphotos.com/3197629/6602/i/450/depositphotos_66020151-stock-photo-islamia-college-peshawar-pakistan.jpg" alt="Luxury Hotel" />
                         </div>
                     </div>
                 </div>

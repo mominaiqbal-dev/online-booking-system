@@ -23,7 +23,8 @@ export default function BookingFormPage({ auth, room }) {
         
         const finalFormData = {
             ...formData,
-            numberOfGuests: customGuests ? parseInt(customGuests) : formData.numberOfGuests
+            numberOfGuests: customGuests ? parseInt(customGuests) : formData.numberOfGuests,
+            roomPrice: 3500 // Default price, can be made dynamic later
         };
         
         router.post('/bookings', finalFormData, {

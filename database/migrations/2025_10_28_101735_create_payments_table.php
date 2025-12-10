@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('booking_id');
+            $table->unsignedBigInteger('booking_id');
             $table->string('payment_method'); // card, jazzcash, easypaisa
             $table->string('card_holder_name')->nullable();
             $table->string('card_number')->nullable();
